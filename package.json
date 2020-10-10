@@ -1,0 +1,25 @@
+{
+  "name": "employee_db",
+  "version": "1.0.0",
+  "description": "A basic CLI that updates the employee database.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/clarissareeve/EmployeeDatabase.git"
+  },
+  "author": "Clarissa Reeve",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/clarissareeve/EmployeeDatabase/issues"
+  },
+  "homepage": "https://github.com/clarissareeve/EmployeeDatabase#readme",
+  "dependencies": {
+    "inquirer": "^7.3.3",
+    "mysql": "^2.18.1",
+    "table": "^6.0.3"
+  }
+}
