@@ -15,7 +15,7 @@ const questions = [
         type: 'list',
         name: 'action',
         message: 'What would you like to do?',
-        choices: ['View all employees', 'View all employees by Department', 'View all employees by Manager', 'Add Employee', 'Remove Employee', 'Update Employee Title', 'Update Employee\'s Manager']
+        choices: ['View all employees', 'View all employees by Department', 'View all employees by Manager', 'Add Employee', 'Remove Employee', 'Update Employee Title', 'Update Employee\'s Manager', 'Exit']
     },
     {
         type: 'input',
