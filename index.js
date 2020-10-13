@@ -2,6 +2,7 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
 const dotenv = require('dotenv').config();
+const cTable = require('console.table');
 
 const questions = require('./questions.js');
 
@@ -23,21 +24,21 @@ connection.connect((err) => {
     }
     console.log('Welcome to...');
 
-    // console.log('   ___  ___ ___  ____   _       ___   __ __    ___    ___ ');
-    // console.log('  \/  _]|   |   ||    \\ | |     \/   \\ |  |  |  \/  _]  \/  _]');
-    // console.log(' \/  [_ | _   _ ||  o  )| |    |     ||  |  | \/  [_  \/  [_ ');
-    // console.log('|    _]|  \\_\/  ||   _\/ | |___ |  O  ||  ~  ||    _]|    _]');
-    // console.log('|   [_ |   |   ||  |   |     ||     ||___, ||   [_ |   [_ ');
-    // console.log('|     ||   |   ||  |   |     ||     ||     ||     ||     |');
-    // console.log('|_____||___|___||__|   |_____| \\___\/ |____\/ |_____||_____|');
-    // console.log('                                                          ');
-    // console.log('     ___ ___   ____  ____    ____   ____    ___  ____     ');
-    // console.log('    |   |   | \/    ||    \\  \/    | \/    |  \/  _]|    \\    ');
-    // console.log('    | _   _ ||  o  ||  _  ||  o  ||   __| \/  [_ |  D  )   ');
-    // console.log('    |  \\_\/  ||     ||  |  ||     ||  |   |    _]|    \/    ');
-    // console.log('    |   |   ||  _  ||  |  ||  _  ||  |_. |   [_ |    \\    ');
-    // console.log('    |   |   ||  |  ||  |  ||  |  ||     ||     ||  .  \\   ');
-    // console.log('    |___|___||__|__||__|__||__|__||___,_||_____||__|\\_|   ');
+    console.log('   ___  ___ ___  ____   _       ___   __ __    ___    ___ ');
+    console.log('  \/  _]|   |   ||    \\ | |     \/   \\ |  |  |  \/  _]  \/  _]');
+    console.log(' \/  [_ | _   _ ||  o  )| |    |     ||  |  | \/  [_  \/  [_ ');
+    console.log('|    _]|  \\_\/  ||   _\/ | |___ |  O  ||  ~  ||    _]|    _]');
+    console.log('|   [_ |   |   ||  |   |     ||     ||___, ||   [_ |   [_ ');
+    console.log('|     ||   |   ||  |   |     ||     ||     ||     ||     |');
+    console.log('|_____||___|___||__|   |_____| \\___\/ |____\/ |_____||_____|');
+    console.log('                                                          ');
+    console.log('     ___ ___   ____  ____    ____   ____    ___  ____     ');
+    console.log('    |   |   | \/    ||    \\  \/    | \/    |  \/  _]|    \\    ');
+    console.log('    | _   _ ||  o  ||  _  ||  o  ||   __| \/  [_ |  D  )   ');
+    console.log('    |  \\_\/  ||     ||  |  ||     ||  |   |    _]|    \/    ');
+    console.log('    |   |   ||  _  ||  |  ||  _  ||  |_. |   [_ |    \\    ');
+    console.log('    |   |   ||  |  ||  |  ||  |  ||     ||     ||  .  \\   ');
+    console.log('    |___|___||__|__||__|__||__|__||___,_||_____||__|\\_|   ');
 
     init();
 });
@@ -45,7 +46,7 @@ connection.connect((err) => {
 // ***function to start questions
 function init() {
     inquirer.prompt({
-        type: 'list'
+        type: 'rawlist'
         , name: 'action'
         , message: 'What would you like to do?'
         , choices: ['View all employees'
@@ -55,7 +56,8 @@ function init() {
             , 'Remove Employee'
             , 'Update Employee Title'
             , 'Update Employee\'s Manager'
-            , 'Exit']
+            , 'Exit'
+            , new inquirer.Separator()]
     })
         .then(function (response) {
             switch (response.action) {
@@ -91,7 +93,12 @@ function init() {
 // *** functions for question responses
 
 function viewAll() {
-    clog('View All');
+    connection.query("SELECT concat(e.first_name,' ', e.last_name) AS employee, r.title, r.salary, d.name AS department, concat(m.first_name,' ',m.last_name) AS manager, rm.title AS manger_title FROM employee e LEFT JOIN role r ON e.role_id=r.id LEFT JOIN department d ON d.id=r.department_id LEFT JOIN employee m ON e.manager_id=m.id LEFT JOIN role rm on m.role_id=rm.id;", function (err, res) {
+        if (err) throw err;
+        clog('');
+        console.table(res);
+    })
+    clog('-----------------------------------------------------------')
     init();
 };
 
