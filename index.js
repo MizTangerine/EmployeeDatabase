@@ -54,8 +54,10 @@ function init() {
             , 'View Employees by Manager'
             , 'Add Employee'
             , 'Remove Employee'
-            , 'Update Employee Title'
+            , 'Update Employee\'s Job Title'
             , 'Update Employee\'s Manager'
+            , 'Add additional Job Titles'
+            , 'Add additional Departments'
             , 'Exit'
             , new inquirer.Separator()]
     })
@@ -76,11 +78,17 @@ function init() {
                 case 'Remove Employee':
                     delEmp();
                     break;
-                case 'Update Employee Title':
+                case 'Update Employee\'s Job Title':
                     upEmpTitle();
                     break;
                 case 'Update Employee\'s Manager':
                     upEmpMan();
+                    break;
+                case 'Add additional Job Titles':
+                    addRoles();
+                    break;
+                case 'Add additional Departments':
+                    addDepts();
                     break;
                 case 'Exit':
                     clog('Good Bye ;)')
@@ -177,6 +185,15 @@ function upEmpMan() {
     init();
 }
 
+function addRoles() {
+    clog('Add aditional Job Titles')
+    init();
+}
+
+function addDepts() {
+    clog('Add additional Departments')
+    init();
+}
 
 
 
