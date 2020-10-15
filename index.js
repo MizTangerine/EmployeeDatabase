@@ -97,19 +97,64 @@ function viewAll() {
         if (err) throw err;
         clog('');
         console.table(res);
+        clog('-----------------------------------------------------------');
+        init();
     })
-    clog('-----------------------------------------------------------')
-    init();
+
 };
 
 function empByDept() {
-    clog('Emps by Dept');
-    init();
+    connection.query("SELECT name AS Department FROM department ORDER BY id;", function (err, res) {
+        if (err) throw err;
+        const dept = res.map(function (dept) {
+            // clog('dept: ', dept)
+            return dept.Department
+        });
+        inquirer.prompt([
+            {
+                type: 'rawlist',
+                message: 'Which department would you like to view?',
+                name: 'viewDept',
+                choices: dept
+            }
+        ]).then(function (ans) {
+            connection.query("SELECT concat(e.first_name,' ', e.last_name) AS employee, r.title, r.salary, concat(m.first_name,' ',m.last_name) AS manager, rm.title AS manger_title FROM employee e LEFT JOIN role r ON e.role_id=r.id LEFT JOIN department d ON d.id=r.department_id LEFT JOIN employee m ON e.manager_id=m.id LEFT JOIN role rm on m.role_id=rm.id WHERE d.name=?;", [ans.viewDept], function (err, res) {
+                if (err) throw err;
+                clog('');
+                console.table(res);
+                clog('-----------------------------------------------------------');
+                init();
+            })
+        })
+    })
 };
 
 function empByMan() {
-    clog('Emps by Manager')
-    init();
+    connection.query("SELECT DISTINCT CONCAT(m.first_name,' ', m.last_name) AS Manager, m.id, r.title FROM employee e JOIN employee m ON e.manager_id=m.id JOIN role r ON m.role_id=r.id ORDER BY m.last_name;", function (err, res) {
+        if (err) throw err;
+        const manager = res.map(function (manager) {
+            // clog('manager: ', manager)
+            return manager.Manager
+        });
+        // clog(manager)
+        inquirer.prompt([
+            {
+                type: 'rawlist',
+                message: 'Whose employees would you like to see?',
+                name: 'manager',
+                choices: manager
+            }
+        ]).then(function (ans) {
+            connection.query("SELECT concat(e.first_name,' ', e.last_name) AS employee, r.title, r.salary, concat(m.first_name,' ',m.last_name) AS manager, rm.title AS manger_title FROM employee e LEFT JOIN role r ON e.role_id=r.id LEFT JOIN department d ON d.id=r.department_id LEFT JOIN employee m ON e.manager_id=m.id LEFT JOIN role rm on m.role_id=rm.id WHERE m.id=?;", [res.find((manager) => manager.Manager === ans.manager).id], function (err, res) {
+                if (err) throw err;
+                // clog(ans.id)
+                clog('');
+                console.table(res);
+                clog('-----------------------------------------------------------');
+                init();
+            })
+        })
+    })
 }
 
 function addEmp() {
