@@ -191,37 +191,40 @@ function addRoles() {
 };
 
 function addDepts() {
-    // viewDepts(); ?? how do i get the question to appear
-    inquirer.prompt([
-        {
-            type: 'input',
-            name: 'dept',
-            message: 'Enter a new Department:',
-            default: 'New Department',
-            validate: function (answer) {
-                if (answer.length < 1) {
-                    return console.log("A Department is required.");
+    viewDepts(
+        function () {
+            inquirer.prompt([
+                {
+                    type: 'input',
+                    name: 'dept',
+                    message: 'Enter a new Department:',
+                    default: 'New Department',
+                    validate: function (answer) {
+                        if (answer.length < 1) {
+                            return console.log("A Department is required.");
+                        }
+                        return true;
+                    }
                 }
-                return true;
-            }
+            ])
+                .then(function (ans) {
+                    connection.query("INSERT INTO department (name) VALUES (?);", [ans.dept], function (err, res) {
+                        if (err) throw err;
+                        clog('Department successfully added.');
+                        init();
+                    })
+                })
+
         }
-    ])
-        .then(function (ans) {
-            connection.query("INSERT INTO department (name) VALUES (?);", [ans.dept], function (err, res) {
-                if (err) throw err;
-                clog('Department successfully added.');
-                init();
-            })
-        })
+    );
 }
-
-
-function viewDepts() {
+function viewDepts(cb) {
     connection.query("SELECT id, name AS Department FROM department ORDER BY id;", function (err, res) {
         if (err) throw err;
         clog('')
         console.table(res);
         clog('-----------------------------------------------------------');
+        cb();
     })
 };
 
