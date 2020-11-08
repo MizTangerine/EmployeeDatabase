@@ -61,8 +61,8 @@ function init() {
             , 'Exit'
             , new inquirer.Separator()]
     })
-        .then(function (response) {
-            switch (response.action) {
+        .then(function (ans) {
+            switch (ans.action) {
                 case 'View all employees':
                     viewAll();
                     break;
@@ -86,6 +86,7 @@ function init() {
                     break;
                 case 'Add additional Job Titles':
                     addRoles();
+                    // viewTitles()
                     break;
                 case 'Add additional Departments':
                     addDepts();
@@ -99,7 +100,7 @@ function init() {
 };
 
 // *** functions for question responses
-
+// working
 function viewAll() {
     connection.query("SELECT concat(e.first_name,' ', e.last_name) AS employee, r.title, r.salary, d.name AS department, concat(m.first_name,' ',m.last_name) AS manager, rm.title AS manger_title FROM employee e LEFT JOIN role r ON e.role_id=r.id LEFT JOIN department d ON d.id=r.department_id LEFT JOIN employee m ON e.manager_id=m.id LEFT JOIN role rm on m.role_id=rm.id;", function (err, res) {
         if (err) throw err;
@@ -110,7 +111,7 @@ function viewAll() {
     })
 
 };
-
+// working
 function empByDept() {
     connection.query("SELECT name AS Department FROM department ORDER BY id;", function (err, res) {
         if (err) throw err;
@@ -136,7 +137,7 @@ function empByDept() {
         })
     })
 };
-
+// working
 function empByMan() {
     connection.query("SELECT DISTINCT CONCAT(m.first_name,' ', m.last_name) AS Manager, m.id, r.title FROM employee e JOIN employee m ON e.manager_id=m.id JOIN role r ON m.role_id=r.id ORDER BY m.last_name;", function (err, res) {
         if (err) throw err;
@@ -184,12 +185,64 @@ function upEmpMan() {
     clog('Update Emps Manager')
     init();
 };
-
+// working without the viewTitles
 function addRoles() {
-    clog('Add aditional Job Titles')
-    init();
-};
+    // viewTitles(
+    connection.query("SELECT id, name AS Department FROM department ORDER BY id;", function (err, res) {
+        if (err) throw err;
+        inquirer.prompt([
+            {
+                type: 'input',
+                name: 'role',
+                message: 'Enter a new Title:',
+                default: 'New Job Title',
+                validate: function (answer) {
+                    if (answer.length < 1) {
+                        return clog("A Job Title is required.");
+                    }
+                    return true;
+                }
+            },
+            {
+                type: 'input',
+                name: 'salary',
+                message: 'Enter the Salary:',
+                default: '100000',
+                validate: function (value) {
+                    var valid = !isNaN(parseFloat(value));
+                    return valid || 'Please enter a number';
+                },
+            },
+            {
+                type: 'rawlist',
+                name: 'dept',
+                message: 'Choose the Department:',
+                choices: res.map(dept => dept.Department)
+            }
+        ])
+            .then(function (ans) {
+                const addedDept = res.filter(dept => dept.Department === ans.dept);
+                connection.query("INSERT INTO role (title, salary, department_id) VALUES (?,?,?);", [ans.role, ans.salary, addedDept[0].id], function (err, res) {
+                    if (err) throw err;
+                    clog('New Job Title successfully added.');
+                    init();
+                });
+            });
+    })
+    // );
+}
 
+// function viewTitles(cb) {
+//     connection.query("SELECT r.title AS Title, r.salary AS Salary, d.name AS Department FROM role r JOIN department d ON r.department_id=d.id ORDER BY d.name, r.salary DESC;", function (err, res) {
+//         if (err) throw err;
+//         clog('')
+//         console.table(res);
+//         clog('-----------------------------------------------------------');
+//         cb();
+//     });
+// };
+
+// working
 function addDepts() {
     viewDepts(
         function () {
@@ -212,12 +265,12 @@ function addDepts() {
                         if (err) throw err;
                         clog('Department successfully added.');
                         init();
-                    })
-                })
-
+                    });
+                });
         }
     );
 }
+// ***Shows Current Depts before adding a new one
 function viewDepts(cb) {
     connection.query("SELECT id, name AS Department FROM department ORDER BY id;", function (err, res) {
         if (err) throw err;
