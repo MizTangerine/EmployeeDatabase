@@ -166,10 +166,64 @@ function empByMan() {
     })
 };
 
-function addEmp() {
-    clog('Add Emp')
-    init();
-};
+async function addEmp() {
+    const roles = await viewRoles();
+    const managers = await viewManagers();
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'firstName',
+            message: 'Enter the Employee\'s First Name:',
+            default: 'First Name',
+            validate: function (answer) {
+                if (answer.length < 1) {
+                    return clog("A First Name is required.");
+                }
+                return true;
+            }
+        },
+        {
+            type: 'input',
+            name: 'lastName',
+            message: 'Enter the Employee\'s Last Name:',
+            default: 'Last Name',
+            validate: function (answer) {
+                if (answer.length < 1) {
+                    return clog("A Last Name is required.");
+                }
+                return true;
+            }
+        },
+        {
+            type: 'rawlist',
+            name: 'role',
+            message: 'Choose the Employee\'s Job Title:',
+            choices: roles
+        },
+        {
+            type: 'confirm',
+            name: 'addManager',
+            message: 'Would you like to add a Manager for this Employee?',
+            default: true,
+        },
+        {
+            when: input => {
+                return input.addManager == true;
+            },
+            type: 'rawlist',
+            name: 'manager',
+            message: 'Choose the Employee\'s Manager',
+            choices: managers
+        }
+    ])
+        .then(function (ans) {
+            connection.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?);", [ans.firstName, ans.lastName, ans.role, ans.manager], function (err, res) {
+                if (err) throw err;
+                console.log('New Employee successfully added.');
+                init();
+            });
+        })
+}
 
 function delEmp() {
     clog('Delete Employee')
@@ -185,7 +239,7 @@ function upEmpMan() {
     clog('Update Emps Manager')
     init();
 };
-// working without the viewTitles
+// working (without the viewTitles)
 function addRoles() {
     // viewTitles(
     connection.query("SELECT id, name AS Department FROM department ORDER BY id;", function (err, res) {
@@ -281,7 +335,35 @@ function viewDepts(cb) {
     })
 };
 
+async function viewDepts() {
+    return new Promise((res, rej) => {
+        connection.query('SELECT name, id AS value FROM department;', (err, results, fields) => {
+            if (err) throw err;
+            res(results);
+            // console.log(results)
+        });
+    });
+};
 
+async function viewRoles() {
+    return new Promise((res, rej) => {
+        connection.query("SELECT CONCAT(r.title,', ',d.name) AS name, r.id AS value FROM role r JOIN department d ON r.department_id=d.id ORDER by d.name, r.title;", (err, results, fields) => {
+            if (err) throw err;
+            res(results);
+            // console.log(results)
+        });
+    });
+};
+
+async function viewManagers() {
+    return new Promise((res, rej) => {
+        connection.query("SELECT DISTINCT CONCAT(m.first_name,' ', m.last_name, ', ',rm.title) AS name, m.id AS value FROM employee e JOIN employee m ON e.manager_id=m.id LEFT JOIN role rm ON m.role_id=rm.id;", (err, results, fields) => {
+            if (err) throw err;
+            res(results);
+            // console.log(results)
+        });
+    });
+};
 
 
 
