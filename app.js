@@ -43,16 +43,16 @@ function init() {
         type: 'rawlist'
         , name: 'action'
         , message: 'What would you like to do?'
-        , choices: ['Add Department'
-            , 'Add Employee Roles'
-            , 'Add Employees'
-
+        , choices: [
+            'View All Employees'
             , 'View Department List'
-            , 'View Employee Roles'
-
-            , 'View All Employees'
             , 'View Employees by Department'
             , 'View Employees by Manager'
+            , 'View Employee Roles'
+
+            , 'Add Department'
+            , 'Add Employee Roles'
+            , 'Add Employees'
 
             , 'Update Employee\'s Title'
             , 'Update Employee\'s Manager'
@@ -122,7 +122,7 @@ async function viewDept() {
 };
 // ***View All Roles
 function viewEmpRoles() {
-    connection.query("SELECT r.title AS Title, r.salary AS Salary, d.name AS Department FROM role r JOIN department d ON r.department_id=d.id ORDER BY d.id, r.salary DESC;", function (err, res) {
+    connection.query("SELECT r.title AS Title, r.salary AS Salary, d.name AS Department FROM role r JOIN department d ON r.department_id=d.id ORDER BY d.name, r.title, r.salary DESC;", function (err, res) {
         if (err) throw err;
         console.log('');
         console.table(res);
@@ -132,7 +132,7 @@ function viewEmpRoles() {
 };
 // ***View All Employees
 function viewAll() {
-    connection.query("SELECT concat(e.first_name,' ', e.last_name) AS employee, r.title, r.salary, d.name AS department, concat(m.first_name,' ',m.last_name) AS manager, rm.title AS manger_title FROM employee e LEFT JOIN role r ON e.role_id=r.id LEFT JOIN department d ON d.id=r.department_id LEFT JOIN employee m ON e.manager_id=m.id LEFT JOIN role rm on m.role_id=rm.id;", function (err, res) {
+    connection.query("SELECT concat(e.first_name,' ', e.last_name) AS employee, r.title, r.salary, d.name AS department, concat(m.first_name,' ',m.last_name) AS manager, rm.title AS manger_title FROM employee e LEFT JOIN role r ON e.role_id=r.id LEFT JOIN department d ON d.id=r.department_id LEFT JOIN employee m ON e.manager_id=m.id LEFT JOIN role rm on m.role_id=rm.id ORDER BY e.first_name, e.last_name;", function (err, res) {
         if (err) throw err;
         console.log('');
         console.table(res);
@@ -393,7 +393,7 @@ function deptSalary() {
 
 async function deptsChoices() {
     return new Promise((res, rej) => {
-        connection.query("SELECT name, id AS value FROM department;", (err, results, fields) => {
+        connection.query("SELECT name, id AS value FROM department ORDER BY name;", (err, results, fields) => {
             if (err) throw err;
             res(results);
         });
@@ -405,7 +405,6 @@ async function listDepts() {
         connection.query("SELECT name AS Department FROM department ORDER BY id;", (err, results, fields) => {
             if (err) throw err;
             res(results);
-            console.table(results)
         });
     });
 };
@@ -430,7 +429,7 @@ async function managerChoices() {
 
 async function viewTitles() {
     return new Promise((res, rej) => {
-        connection.query("SELECT r.title AS Title, r.salary AS Salary, d.name AS Department FROM role r JOIN department d ON r.department_id=d.id ORDER BY d.name, r.salary DESC;", function (err, results) {
+        connection.query("SELECT r.title AS Title, r.salary AS Salary, d.name AS Department FROM role r JOIN department d ON r.department_id=d.id ORDER BY r.title;", function (err, results) {
             if (err) throw err;
             res(results);
         });
@@ -439,7 +438,7 @@ async function viewTitles() {
 
 async function empChoices() {
     return new Promise((res, rej) => {
-        connection.query("SELECT concat(e.first_name,' ', e.last_name, ', ', r.title) AS name, e.id AS value FROM employee e JOIN role r on e.role_id=r.id ORDER BY e.last_name, e.first_name;", function (err, results) {
+        connection.query("SELECT concat(e.first_name,' ', e.last_name, ', ', r.title) AS name, e.id AS value FROM employee e JOIN role r on e.role_id=r.id ORDER BY e.first_name, e.last_name;", function (err, results) {
             if (err) throw err;
             res(results);
         });
