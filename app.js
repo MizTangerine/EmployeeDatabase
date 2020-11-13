@@ -391,7 +391,7 @@ function deptSalary() {
 
 // ***functions for choices
 
-async function deptsChoices() {
+function deptsChoices() {
     return new Promise((res, rej) => {
         connection.query("SELECT name, id AS value FROM department ORDER BY name;", (err, results, fields) => {
             if (err) throw err;
@@ -400,7 +400,7 @@ async function deptsChoices() {
     });
 };
 
-async function listDepts() {
+function listDepts() {
     return new Promise((res, rej) => {
         connection.query("SELECT name AS Department FROM department ORDER BY id;", (err, results, fields) => {
             if (err) throw err;
@@ -409,7 +409,7 @@ async function listDepts() {
     });
 };
 
-async function roleChoices() {
+function roleChoices() {
     return new Promise((res, rej) => {
         connection.query("SELECT CONCAT(r.title,', ',d.name) AS name, r.id AS value FROM role r JOIN department d ON r.department_id=d.id ORDER by d.name, r.title;", (err, results, fields) => {
             if (err) throw err;
@@ -418,7 +418,7 @@ async function roleChoices() {
     });
 };
 
-async function managerChoices() {
+function managerChoices() {
     return new Promise((res, rej) => {
         connection.query("SELECT DISTINCT CONCAT(m.first_name,' ', m.last_name, ', ', r.title) AS name, m.id AS value FROM employee e JOIN employee m ON e.manager_id=m.id JOIN role r ON m.role_id=r.id ORDER BY m.last_name;", function (err, results, fields) {
             if (err) throw err;
@@ -427,7 +427,7 @@ async function managerChoices() {
     });
 };
 
-async function viewTitles() {
+function viewTitles() {
     return new Promise((res, rej) => {
         connection.query("SELECT r.title AS Title, r.salary AS Salary, d.name AS Department FROM role r JOIN department d ON r.department_id=d.id ORDER BY r.title;", function (err, results) {
             if (err) throw err;
@@ -436,7 +436,7 @@ async function viewTitles() {
     });
 };
 
-async function empChoices() {
+function empChoices() {
     return new Promise((res, rej) => {
         connection.query("SELECT concat(e.first_name,' ', e.last_name, ', ', r.title) AS name, e.id AS value FROM employee e JOIN role r on e.role_id=r.id ORDER BY e.first_name, e.last_name;", function (err, results) {
             if (err) throw err;
